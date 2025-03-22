@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 # Configuration
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-
+    
 # Predefined responses for specific questions
 PREDEFINED_RESPONSES = {
     "what is your name": "I am Sarah, your virtual assistant.",
