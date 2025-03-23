@@ -3,7 +3,6 @@ import os
 import requests
 from dotenv import load_dotenv
 import random
-import requests
 from responses import PREDEFINED_RESPONSES_EN
 
 load_dotenv()
