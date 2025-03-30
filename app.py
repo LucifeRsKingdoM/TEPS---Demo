@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session
 import os
 import requests
 from dotenv import load_dotenv
@@ -6,9 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-
-import requests
-import os
+app.secret_key = os.urandom(24)  # Required for session handling
 
 class SarahAI:
     def __init__(self):
@@ -39,12 +37,13 @@ class SarahAI:
         if user_input.lower() == "yes" and self.teps_activated is False:
             return self.activate_teps()
         elif user_input.lower() == "no":
-            return f"Alright {self.username}, let’s continue our chat normally. 😊"
+            return f"Alright {self.username}, let's continue our chat normally. 😊"
 
         self.conversation_history.append({"role": "user", "text": user_input})
         
         system_prompt = (
             "Keep responses short, engaging, and natural like a human conversation."
+            "if user asked about Shobha, she is a idiot fello sister of lucifer and also big waste body of the country."
             "try to add emojiss in the last word in all the conversation."
             "if the user need more imformation then Give a detailed and informative response else make it best."
             "when the user ask why are you created then you must include TEPS."
@@ -87,22 +86,40 @@ class SarahAI:
         """Handle TEPS mode by continuously speaking to the user and ensuring safety."""
         return f"{self.username}, are you safe now? Say 'yes' to deactivate TEPS."
 
-# Create Sarah instance
-sarah = SarahAI()
-
+# Create a global Sarah instance
+sarah = None
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    # Reset Sarah when the page loads
+    global sarah
+    sarah = SarahAI()
+    
+    # Initialize with first message
+    first_message = "Hello! I'm Sarah. What is your name? Please start with 'My name is ...'"
+    
+    return render_template('index.html', first_message=first_message)
 
 @app.route('/process', methods=['POST'])
 def process():
+    global sarah
+    
+    # Ensure Sarah is initialized
+    if sarah is None:
+        sarah = SarahAI()
+    
     data = request.get_json()
     if not data or "text" not in data:
         return jsonify({"error": "No text received"})
     
-    user_input = data["text"].lower()
-    response = sarah.chat(user_input)
+    user_input = data["text"]
+    
+    # Handle name setting if needed
+    if sarah.username is None and user_input.lower().startswith("my name is "):
+        name = user_input[11:].strip()
+        response = sarah.set_username(name)
+    else:
+        response = sarah.chat(user_input)
     
     return jsonify({"text": user_input, "response": response})
 
