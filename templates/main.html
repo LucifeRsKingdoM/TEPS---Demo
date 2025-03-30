@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEPS with SaraH</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Inter", Arial, sans-serif;
+        }
+
+        body {
+            background-color: #121212;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            width: 90%;
+            max-width: 350px;
+            height: 90vh;
+            max-height: 750px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .column {
+            border: 2px solid #22b8a5;
+            border-radius: 8px;
+            background-color: #1a1e23;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .header {
+            background-color: #232830;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #2a2f36;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #ffffff;
+        }
+
+        .slogan {
+            font-size: 14px;
+            color: #a0a0a0;
+        }
+
+        /* Emergency Grid */
+        .emergency-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            height: calc(100% - 80px);
+            position: relative;
+        }
+
+        .btn-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        .emergency-btn {
+            width: 100%;
+            height: 100%;
+            border: none;
+            color: white;
+            font-weight: 600;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .emergency-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .emergency-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .emergency-btn i {
+            font-size: 2rem;
+        }
+
+        .emergency-btn span {
+            font-size: 14px;
+        }
+
+        /* Center button container */
+        .center-btn-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        /* Small side buttons container */
+        .side-btn-container-left {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-140%, -50%);
+            z-index: 9;
+        }
+
+        .side-btn-container-right {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(40%, -50%);
+            z-index: 9;
+        }
+
+
+        /* Small side buttons */
+        .side-btn {
+            width: 90px;
+            height: 90px;
+            border: none;
+            color: white;
+            font-weight: 600;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 0;
+        }
+
+        .side-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .side-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .side-btn i {
+            font-size: 1.8rem;
+            margin-bottom: 6px;
+        }
+
+        .side-btn span {
+            font-size: 12px;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        /* Center button */
+        .emergency-btn.center {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+        }
+
+        .emergency-btn.center i {
+            font-size: 2.5rem;
+        }
+        
+        /* Side button colors */
+        .assistant {
+            background-color: #9c27b0; /* Purple */
+        }
+        
+        .english {
+            background-color: #ff9800; /* Orange */
+        }
+
+        /* Button colors */
+        .medical {
+            background-color: #4caf50; /* Green */
+        }
+
+        .fire {
+            background-color: #ff5722; /* Orange */
+        }
+
+        .women-safety {
+            background-color: #e91e63; /* Pink */
+        }
+
+        .panic {
+            background-color: #f44336; /* Red */
+        }
+
+        .travel {
+            background-color: #2196f3; /* Blue */
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: bottom 0.3s ease-in-out;
+            z-index: 1000;
+            width: 300px;
+            max-width: 90%;
+        }
+
+        .toast.show {
+            bottom: 20px;
+        }
+
+        .toast-title {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .toast-description {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Responsive adjustments */
+        @media (max-height: 650px) {
+            .emergency-btn.center {
+                width: 110px;
+                height: 110px;
+            }
+            
+            .emergency-btn i {
+                font-size: 1.7rem;
+            }
+            
+            .emergency-btn.center i {
+                font-size: 2.2rem;
+            }
+            
+            .side-btn {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .side-btn-container-left {
+                left: calc(50% - 80px);
+            }
+            
+            .side-btn-container-right {
+                right: calc(50% - 80px);
+            }
+        }
+
+        @media (max-height: 550px) {
+            .emergency-grid {
+                gap: 12px;
+                padding: 12px;
+            }
+            
+            .emergency-btn span {
+                font-size: 12px;
+            }
+            
+            .side-btn {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .side-btn i {
+                font-size: 1rem;
+            }
+            
+            .side-btn span {
+                font-size: 8px;
+            }
+        }
+
+        /* Ensure the top buttons stay at the top */
+        .btn-container.top-left, .btn-container.top-right {
+            grid-row: 1;
+        }
+        .btn-container.top-left {
+            grid-column: 1;
+        }
+        .btn-container.top-right {
+            grid-column: 2;
+        }
+
+        /* Ensure the bottom buttons stay at the bottom */
+        .btn-container.bottom-left, .btn-container.bottom-right {
+            grid-row: 3;
+        }
+        .btn-container.bottom-left {
+            grid-column: 1;
+        }
+        .btn-container.bottom-right {
+            grid-column: 2;
+        }
+
+        /* Center button container - adjust positioning */
+        .center-btn-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        /* Side buttons positioning */
+        .side-btn-container-left {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-165%, -50%);
+            z-index: 9;
+        }
+
+        .side-btn-container-right {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(65%, -50%);
+            z-index: 9;
+        }
+
+        /* Responsive adjustments */
+        @media (max-height: 650px) {
+            .side-btn-container-left {
+                transform: translate(-120%, -50%);
+            }
+            
+            .side-btn-container-right {
+                transform: translate(20%, -50%);
+            }
+        }
+
+        .main-link {
+            color: #22b8a5;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 5px;
+            display: inline-block;
+        }
+
+        .main-link:hover {
+            text-decoration: underline;
+        }
+        
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="column">
+            <div class="header">
+                <h1>TEPS with SaraH</h1>
+                <p class="slogan">Your Safety is our First Priority</p>
+                <a href="{{ url_for('home') }}" id="main" class="main-link">Home</a>
+            </div>
+            
+            <div class="emergency-grid">
+                <!-- Top row emergency buttons -->
+                <div class="btn-container top-left">
+                    <button class="emergency-btn medical" onclick="triggerEmergency('Medical')">
+                        <i class="fas fa-hospital"></i>
+                        <span>Medical</span>
+                    </button>
+                </div>
+                <div class="btn-container top-right">
+                    <button class="emergency-btn fire" onclick="triggerEmergency('Fire')">
+                        <i class="fas fa-fire"></i>
+                        <span>Fire</span>
+                    </button>
+                </div>
+
+                <!-- Center button -->
+                <div class="center-btn-container">
+                    <button class="emergency-btn center women-safety" onclick="triggerEmergency('Women\'s Safety')">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Activate TEPS</span>
+                    </button>
+                </div>
+                
+                <!-- Side buttons -->
+                <div class="side-btn-container-left">
+                    <button class="side-btn assistant" onclick="triggerEmergency('Friendly Assistant')">
+                        <i class="fas fa-hands-helping"></i>
+                        <span>Friendly Assistant</span>
+                    </button>
+                </div>
+                
+                <div class="side-btn-container-right">
+                    <button class="side-btn english" onclick="triggerEmergency('Learning English')">
+                        <i class="fas fa-language"></i>
+                        <span>Learning English</span>
+                    </button>
+                </div>
+
+                <!-- Bottom row emergency buttons -->
+                <div class="btn-container bottom-left">
+                    <button class="emergency-btn panic" onclick="triggerEmergency('Panic Mode')">
+                        <i class="fas fa-bell"></i>
+                        <span>Panic Mode</span>
+                    </button>
+                </div>
+                <div class="btn-container bottom-right">
+                    <button class="emergency-btn travel" onclick="triggerEmergency('Travel')">
+                        <i class="fas fa-car"></i>
+                        <span>Travel</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div id="toast" class="toast">
+        <div class="toast-content">
+            <div class="toast-title">Emergency Activated</div>
+            <div class="toast-description">Your emergency alert has been triggered.</div>
+        </div>
+    </div>
+
+    <script>
+        // Function to trigger emergency
+        function triggerEmergency(type) {
+            // Update toast content
+            document.querySelector('.toast-title').textContent = `${type} Emergency Activated`;
+            document.querySelector('.toast-description').textContent = `Your ${type.toLowerCase()} emergency alert has been triggered.`;
+            
+            // Show toast
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            
+            // Hide toast after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
