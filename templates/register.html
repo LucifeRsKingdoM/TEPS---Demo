@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Sarah</title>
+<style>
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Inter", Arial, sans-serif;
+}
+
+body {
+    background-color: #121212;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.app-container {
+    width: 90%;
+    max-width: 350px;
+    height: 90vh;
+    max-height: 750px;
+    display: flex;
+    flex-direction: column;
+}
+
+.column {
+    border: 2px solid #22b8a5;
+    border-radius: 8px;
+    background-color: #1a1e23;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;  /* 🟢 Ensures footer stays at the bottom */
+    overflow: hidden;
+    position: relative;
+}
+
+/* 🔹 Header (Top Bar) */
+.header {
+    background-color: #232830;
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid #2a2f36;
+}
+
+.header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: #ffffff;
+}
+
+/* 🔹 Footer (Fixed at Bottom inside the Phone) */
+.header1 {
+    background-color: #232830;
+    padding: 15px;
+    text-align: center;
+    border-top: 1px solid #2a2f36;
+    width: 100%;
+    position: relative;  /* 🟢 No longer fixed to screen */
+}
+
+.header1 h1 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: #ffffff;
+}
+
+.slogan {
+    font-size: 14px;
+    color: #a0a0a0;
+}
+
+/* 🔹 Centered Form */
+.reg {
+    flex: 1;  /* 🟢 Takes remaining space between header & footer */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.reg form {
+    width: 90%;
+    max-width: 320px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 🔹 Form Heading */
+.reg h2 {
+    font-size: 22px;
+    margin-bottom: 15px;
+    color: #fff;
+    font-weight: bold;
+}
+
+/* 🔹 Labels */
+.reg label {
+    font-size: 16px;
+    display: block;
+    margin: 10px 0 5px;
+    font-weight: 500;
+}
+
+/* 🔹 Input Fields */
+.reg input {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0 10px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    outline: none;
+    transition: all 0.3s ease-in-out;
+}
+
+/* 🔹 Input Focus Effect */
+.reg input:focus {
+    border-color: #00aaff;
+    box-shadow: 0 0 8px rgba(0, 170, 255, 0.8);
+}
+
+/* 🔹 Submit Button */
+.reg button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #007bff, #00aaff);
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+/* 🔹 Button Hover Effect */
+.reg button:hover {
+    background: linear-gradient(135deg, #0056b3, #0080ff);
+    box-shadow: 0 4px 15px rgba(0, 170, 255, 0.5);
+}
+
+/* 🔹 Responsive for Small Screens */
+@media screen and (max-width: 400px) {
+    .reg form {
+        width: 95%;
+    }
+}
+        
+
+</style>
+    
+</head>
+<body>
+    <div class="app-container">
+        <div class="column">
+            <div class="header">
+                <h1>TEPS with SaraH</h1>
+                <p>Hello,👋</p>
+                <p class="slogan">Your Safety is our First Priority</p>
+            </div>
+
+        <div class="reg">
+            <h2>Enter Your Details</h2>
+            <form onsubmit="saveUserInfo(event)">
+                <label>Name:</label>
+                <input type="text" id="name" required><br>
+                <label>Date of Birth:</label>
+                <input type="date" id="dob" required><br>
+                <label>Phone Number:</label>
+                <input type="tel" id="phone" required><br>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+        <div class="header1">
+            <p class="slogan">Plese Fill the details & allow The permissions</p>
+            <h1>TEPS</h1>
+            <p class="slogan">THE EMERGENCY PROTOCOL SYSTEM</p>
+        </div>
+    </div>
+        
+    </div>
+    
+</body>
+
+<script>
+    let userLocation = null; // Store location globally
+
+    // Request location and microphone permissions
+    function requestPermissions() {
+        navigator.permissions.query({ name: "geolocation" }).then((result) => {
+            if (result.state === "granted" || result.state === "prompt") {
+                getLocation();
+            } else {
+                alert("Location access is required for emergency services.");
+            }
+        });
+
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then((stream) => {
+                console.log("🎤 Microphone access granted");
+                // Stop all tracks immediately to prevent recording
+                stream.getTracks().forEach(track => track.stop());
+            })
+            .catch(() => alert("Microphone access is needed for voice commands."));
+    }
+
+    // Fetch accurate user location
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    userLocation = `${position.coords.latitude},${position.coords.longitude}`;
+                    console.log("📍 Location Fetched:", userLocation);
+                },
+                (error) => console.error("❌ Location Error:", error.message),
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        } else {
+            alert("Geolocation is not supported by your browser.");
+        }
+    }
+
+    // Save user details and location
+    function saveUserInfo(event) {
+        event.preventDefault();
+        let name = document.getElementById("name").value;
+        let dob = document.getElementById("dob").value;
+        let phone = document.getElementById("phone").value.trim();
+
+        // Automatically add +91 if the user enters only 10 digits
+        if (/^\d{10}$/.test(phone)) {
+            phone = `+91${phone}`;
+        }
+
+        if (!userLocation) {
+            alert("Fetching location... Please wait a moment and try again.");
+            return;
+        }
+
+        // Save data locally
+        let userData = { name, dob, phone, location: userLocation };
+        localStorage.setItem("user_data", JSON.stringify(userData));
+
+        // Send data to backend
+        fetch('/save_user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.redirect) {
+                window.location.href = data.redirect; // Redirect to index.html
+            }
+        })
+        .catch(error => console.error("❌ Error saving user:", error));
+    }
+
+    // Run permission requests on page load
+    document.addEventListener("DOMContentLoaded", requestPermissions);
+</script>
+
+</html>
