@@ -228,13 +228,13 @@ def process():
         print("🚨 TEPS ACTIVATION DETECTED ")
 
         # ✅ Check SMS sent status
-        sms_status_response = requests.get("http://127.0.0.1:5000/check_sms_status")  
+        sms_status_response = requests.get("https://teps-demo.onrender.com/check_sms_status")  
         sms_status = sms_status_response.json().get("smsSent", False)  
 
         if not sms_status:  # ✅ If SMS is NOT sent, call API to send it
             print("📩 SMS NOT SENT YET! SENDING NOW...")
 
-            sms_response = requests.post("http://127.0.0.1:5000/send_emergency_sms", json={})  # ✅ Call API
+            sms_response = requests.post("https://teps-demo.onrender.com/send_emergency_sms", json={})  # ✅ Call API
 
             if sms_response.json().get("success", False):  # ✅ Check if SMS was sent successfully
                 print("✅ SMS SENT SUCCESSFULLY! Status updated.")
