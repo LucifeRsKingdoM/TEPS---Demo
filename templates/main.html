@@ -235,21 +235,44 @@
             z-index: 1000;
             width: 300px;
             max-width: 90%;
+            text-align: center;
+            display: none; /* Initially hidden */
         }
 
+        /* Show toast */
         .toast.show {
-            bottom: 20px;
+            bottom: 260px;
         }
 
-        .toast-title {
-            font-weight: bold;
-            margin-bottom: 4px;
+        /* Buttons inside toast */
+        .toast-buttons {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
         }
 
-        .toast-description {
+        /* Toast button styles */
+        .toast-buttons button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
             font-size: 14px;
-            opacity: 0.9;
         }
+
+        /* Yes Button */
+        #toast-yes {
+            background-color: #28a745;
+            color: white;
+        }
+
+        /* No Button */
+        #toast-no {
+            background-color: #dc3545;
+            color: white;
+        }
+
 
         /* Responsive adjustments */
         @media (max-height: 650px) {
@@ -383,8 +406,10 @@
         <div class="column">
             <div class="header">
                 <h1>TEPS with SaraH</h1>
+                <p>Hello, <span id="userName"></span>! 👋</p>
                 <p class="slogan">Your Safety is our First Priority</p>
                 <a href="{{ url_for('home') }}" id="main" class="main-link">Home</a>
+                <button onclick="logout()">Logout</button>
             </div>
             
             <div class="emergency-grid">
@@ -442,30 +467,114 @@
         </div>
     </div>
 
-    <!-- Toast notification -->
+    <!-- Toast notification (Confirmation Popup) -->
     <div id="toast" class="toast">
         <div class="toast-content">
-            <div class="toast-title">Emergency Activated</div>
-            <div class="toast-description">Your emergency alert has been triggered.</div>
+            <div class="toast-title">Confirm Emergency</div>
+            <div class="toast-description">Are you sure you want to activate TEPS?</div>
+            <div class="toast-buttons">
+                <button id="toast-yes">Yes</button>
+                <button id="toast-no">No</button>
+            </div>
         </div>
     </div>
 
-    <script>
-        // Function to trigger emergency
-        function triggerEmergency(type) {
-            // Update toast content
-            document.querySelector('.toast-title').textContent = `${type} Emergency Activated`;
-            document.querySelector('.toast-description').textContent = `Your ${type.toLowerCase()} emergency alert has been triggered.`;
-            
-            // Show toast
+
+<script>
+        
+function triggerEmergency(type) {
+    const toast = document.getElementById('toast');
+    toast.style.display = 'block';
+    toast.classList.add('show');
+
+    document.querySelector('.toast-title').textContent = `Confirm Emergency`;
+    document.querySelector('.toast-description').textContent = `Are you sure you want to activate ${type}?`;
+
+    document.getElementById('toast-yes').onclick = function () {
+        // Store emergency trigger in localStorage
+        localStorage.setItem("emergencyTriggered", "true");
+
+        // Send Emergency Alert in the background
+        fetch('/send_emergency_sms', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                type: type,
+                message: "I am in danger. Please activate TEPS."
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log("✅ SMS Sent Successfully!");
+                localStorage.setItem("emergencyTriggered", "true"); // Keep flag for AI
+            } else {
+                console.error("❌ SMS Sending Failed!");
+                localStorage.removeItem("emergencyTriggered"); // Clear if failed
+            }
+        })
+        .catch(error => {
+            console.error("❌ Error:", error);
+            localStorage.removeItem("emergencyTriggered"); // Clear if error
+        });
+
+        // Set flag to activate assistant upon homepage load
+        localStorage.setItem('activateAssistantAfterRedirect', 'true');
+
+        // Hide toast and redirect to homepage
+        hideToast();
+        setTimeout(() => {
+            window.location.href = "/home"; // Redirect after 1 second
+        }, 1000);
+    };
+
+    document.getElementById('toast-no').onclick = function () {
+        hideToast();
+    };
+}
+
+
+        function hideToast() {
             const toast = document.getElementById('toast');
-            toast.classList.add('show');
-            
-            // Hide toast after 3 seconds
+            toast.classList.remove('show');
             setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+                toast.style.display = 'none';
+            }, 300);
         }
+
+
+        function logout() {
+            localStorage.clear(); // Clear local storage
+            window.location.href = "/logout"; // Redirect to register.html
+        }
+
+        // Load User Data from Flask
+        fetch('/get_user')
+            .then(response => response.json())
+            .then(data => {
+                if (data.name) {
+                    document.getElementById("userName").innerText = data.name;
+                } else {
+                    console.error("❌ No user data found");
+                }
+            })
+            .catch(error => console.error("❌ Fetch Error:", error));
+
+        
+            function isSmsSent() {
+                return localStorage.getItem('smsSent') === 'true';
+            }
+
+            function setSmsSent(sent) {
+                if (sent) {
+                    localStorage.setItem('smsSent', 'true');
+                } else {
+                    localStorage.setItem('smsSent', 'false');
+                }
+            }
+
+
     </script>
+    
 </body>
 </html>
