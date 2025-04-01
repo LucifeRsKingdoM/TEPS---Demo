@@ -22,18 +22,94 @@ if ('webkitSpeechRecognition' in window) {
     };
 }
 
+
 function toggleAssistant() {
+    console.log("🔹 toggleAssistant called. isAssistantActive:", isAssistantActive);
+
     if (!isAssistantActive) {
         isAssistantActive = true;
-        addMessage("assistant", "Hi, I am Sarah. How can I help you?");
-        speakResponse("Hi, I am Sarah. How can I help you?");
+        updateMicButton(true);
+        console.log("🔹 Fetching user data...");
+
+        fetch('/get_user')
+            .then(response => response.json())
+            .then(data => {
+                console.log("🔹 User data:", data);
+                const userName = data.name || "User";
+                let predefinedText = `Hi, how are you? My name is ${userName}`;
+
+                if (localStorage.getItem("emergencyTriggered") === "true") {
+                    predefinedText = ` HIi My name is ${userName} & I'm in danger. Please activate TEPS.`;
+                    localStorage.removeItem("emergencyTriggered");
+                }
+
+                console.log("🔹 Sending message:", predefinedText);
+                addMessage("user", predefinedText);
+
+                return fetch('/process', {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text: predefinedText })
+                });
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("🔹 Assistant response:", data);
+                addMessage("assistant", data.response);
+                speakResponse(data.response);
+            })
+            .catch(error => console.error("❌ Error in toggleAssistant:", error));
     } else {
         isAssistantActive = false;
         if (recognition) recognition.stop();
         window.speechSynthesis.cancel();
+        updateMicButton(false);
     }
-    updateMicButton(isAssistantActive);
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    if (localStorage.getItem('emergencyTriggered') === 'true') {
+        console.log("🚨 Emergency flag detected. Fetching user data...");
+        
+        fetch('/get_user')
+            .then(response => response.json())
+            .then(data => {
+                console.log("🔹 User data:", data);
+                const userName = data.name || "User"; // Get the registered username
+                
+                let emergencyText = `Hi, my name is ${userName} & I'm in danger. Please activate TEPS.`;
+                
+                localStorage.removeItem('emergencyTriggered'); // Remove flag to prevent re-triggering
+                
+                startEmergencyAssistant(emergencyText);
+            })
+            .catch(error => {
+                console.error("❌ Error fetching user data:", error);
+                localStorage.removeItem('emergencyTriggered'); // Ensure flag is removed even if error occurs
+            });
+    }
+});
+
+function startEmergencyAssistant(text) {
+    isAssistantActive = true;
+    updateMicButton(true);
+    addMessage("user", text);
+
+    fetch('/process', {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: text })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("🔹 Emergency Assistant response:", data);
+        addMessage("assistant", data.response);
+        speakResponse(data.response);
+    })
+    .catch(error => console.error("❌ Error in startEmergencyAssistant:", error));
+}
+
+
 
 function toggleVoiceMode() {
     isVoiceMode = !isVoiceMode;
@@ -217,3 +293,20 @@ window.speechSynthesis.onvoiceschanged = function () {
     let voices = window.speechSynthesis.getVoices();
     selectedVoice = voices.find(v => v.name.toLowerCase().includes("female")) || voices[0];
 };
+
+function logout() {
+    localStorage.clear(); // Clear local storage
+    window.location.href = "/logout"; // Redirect to register.html
+}
+
+fetch('/get_user')
+    .then(response => response.json())
+    .then(data => {
+        console.log("📝 User Data Fetched:", data); // Debugging
+        if (data.name) {
+            document.getElementById("userName").innerText = data.name;
+        } else {
+            console.error("❌ No user data found");
+        }
+    })
+    .catch(error => console.error("❌ Fetch Error:", error));
